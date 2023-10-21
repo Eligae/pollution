@@ -64,6 +64,10 @@ def getData(date:str, _location:str) -> pd.DataFrame or None:
             for row in tbody_rows:
                 row_data = [td.text for td in row.find_all('td')]
                 data.append(row_data)
+                
+            if data == [[' 검색하신 데이터가 없습니다.  ']]:
+                return None
+            
             df = pd.DataFrame(data, columns=headers)
             return df
     return None
@@ -76,7 +80,7 @@ def getAVG(date:str, df:pd.DataFrame, daily_df:pd.DataFrame)->pd.DataFrame:
     new_row = {"date" : date}
     for item, group_df in df.groupby("항목"):
         values = group_df[["1호기", "2호기", "3호기"]]
-        values = values.replace(["없음", "시스템 점검 중",''], np.nan).astype(float)
+        values = values.replace(["없음", "시스템 점검 중",'', '운휴중'], np.nan).astype(float)
         average = round(values.mean(axis=1).values[0], 2)
         
         new_row [item] = average
@@ -110,20 +114,24 @@ location = {'Gangnam-gu' :'bcreb226', 'Nowon-gu': 'bcrec237', 'Mapo-gu' : 'bcred
 
 i = 0
 for key, value in location.items():
+    if key == 'Gangnam-gu' or key == 'Nowon-gu':
+        continue
+    
+    
     for _date in result:
         i += 1
         print(f'[{key} {_date}] Crawling..', end='\r')
         crawling_df = getData(date=_date, _location=value)
         
         if crawling_df is None:
-            print(f'Error Occured! : {key}-{value}')
+            print(f'Error Occured! : {key}-{value}\n')
             continue
         daily_df = getAVG(_date, crawling_df, daily_df)
         
         if i % 48 == 0:     # every day
             averaged_values = daily_df.drop(columns=["date"]).mean(axis=0)
             averaged_values["date"] = forDataframeFormatDate(_date)
-            print(f'[{forDataframeFormatDate(_date)}] avg value to dataframe..')
+            print(f'[{key} {forDataframeFormatDate(_date)}] avg value to dataframe..')
             dataframe = pd.concat([dataframe, pd.DataFrame([averaged_values])], ignore_index=True)
             daily_df = pd.DataFrame(columns=col)
 
