@@ -8,6 +8,17 @@ import warnings
 warnings.filterwarnings("ignore")
 
 def generate_datetime_range(start_date:str, end_date:str) -> list:
+    """_summary_
+    
+    returns date by str in list. It will be used for crawling all these links.
+
+    Args:
+        start_date (str): when to start
+        end_date (str): when to end
+
+    Returns:
+        list: ['2023-10-21-12-00', ...]
+    """
     date_time_range = []
     current_date = start_date
     
@@ -24,6 +35,17 @@ def generate_datetime_range(start_date:str, end_date:str) -> list:
     # return by list. example : ["2023-09-16-14-00", ..]
 
 def getData(date:str, _location:str) -> pd.DataFrame or None:
+    """_summary_
+    Actual crawling code. in 'https://rrf.seoul.go.kr'
+    there are 3 Chimneies in Resource recovery facility. get average of them
+    
+    Args:
+        date (str): data in string, used in url
+        _location (str): also for url
+
+    Returns:
+        pd.DataFrame or None: if error occurs. it returns `None`
+    """
     date = date.split('-')
     url = f'https://rrf.seoul.go.kr/content/{_location}.do?pageIndex=1&srchCategory=&menuId=&subPage=&menuNm=&year={date[0]}&month={date[1]}&date={date[2]}&hour={date[3]}&minute={date[4]}'
     response = requests.get(url)
@@ -63,12 +85,17 @@ def getAVG(date:str, df:pd.DataFrame, daily_df:pd.DataFrame)->pd.DataFrame:
     return daily_df
 
 def forDataframeFormatDate(date:str) -> str:
+    """
+    makes date to use easily in `getData`
+    """
     year, month, day, _, _ = date.split('-')
     formatted_date = f"{year}-{month}-{day}"
     return formatted_date
 
 
-
+# ------------------------------------------------------------------------------------------------
+# |                                          main                                                |
+# ------------------------------------------------------------------------------------------------
 col = ["date", "일산화탄소(CO)", "염화수소(HCl)", "황산화물(SO2)", "먼지(Dust)", "질소산화물(NOx)"]
 dataframe = pd.DataFrame(columns=col)
 daily_df = pd.DataFrame(columns=col)
@@ -77,10 +104,11 @@ start_date = datetime.now() - timedelta(days=90)
 end_date = datetime.now() - timedelta(days=1)
 
 result = generate_datetime_range(start_date, end_date)
-i = 0
+
 
 location = {'Gangnam-gu' :'bcreb226', 'Nowon-gu': 'bcrec237', 'Mapo-gu' : 'bcred246', 'Yangchun-gu' : 'bcree257'}     # location : link_value
 
+i = 0
 for key, value in location.items():
     for _date in result:
         i += 1
@@ -99,4 +127,4 @@ for key, value in location.items():
             dataframe = pd.concat([dataframe, pd.DataFrame([averaged_values])], ignore_index=True)
             daily_df = pd.DataFrame(columns=col)
 
-    dataframe.to_csv(f'{key}_AirPollutionAVG.csv', encoding='utf-8')
+    dataframe.to_csv(f'./csv/{key}_AirPollutionAVG.csv', encoding='utf-8')
