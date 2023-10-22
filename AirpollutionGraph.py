@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 def saveGraphAsPNG(filename:str):
-    df = pd.read_csv(filename)
+    df = pd.read_csv(f"./csv/{filename}_AirPollutionAVG.csv")
     plt.figure(figsize=(6, 6)) 
     plt.plot(df["date"], df["일산화탄소(CO)"], label="CO")
     plt.plot(df["date"], df["염화수소(HCl)"], label="HCl")
@@ -11,7 +11,7 @@ def saveGraphAsPNG(filename:str):
     plt.plot(df["date"], df["질소산화물(NOx)"], label="NOx")
 
 
-    plt.title("Air Pollution Graph")
+    plt.title(f"{filename}")
     plt.xlabel("Date")
     plt.ylabel("ppm")
     plt.legend() 
@@ -20,8 +20,8 @@ def saveGraphAsPNG(filename:str):
     plt.xticks(x_ticks, rotation=45)
 
     plt.tight_layout()
-    plt.savefig(f"./graph/{filename[5:len(filename)-3]}.png")
+    plt.savefig(f"./graph/{filename}_AirPollution.png")
 
-csv_list = {'./csv/Gangnam-gu_AirPollutionAVG.csv', './csv/Mapo-gu_AirPollutionAVG.csv', './csv/Nowon-gu_AirPollutionAVG.csv','./csv/Yangchun-gu_AirPollutionAVG.csv'}
+csv_list = {'Gangnam-gu', 'Mapo-gu', 'Nowon-gu', 'Yangchun-gu'}
 for _csv in csv_list:
     saveGraphAsPNG(_csv)
