@@ -114,10 +114,6 @@ location = {'Gangnam-gu' :'bcreb226', 'Nowon-gu': 'bcrec237', 'Mapo-gu' : 'bcred
 
 i = 0
 for key, value in location.items():
-    if key == 'Gangnam-gu' or key == 'Nowon-gu':
-        continue
-    
-    
     for _date in result:
         i += 1
         print(f'[{key} {_date}] Crawling..', end='\r')
